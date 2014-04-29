@@ -1,0 +1,29 @@
+# Maintainer: Andres Erbsen <andres.erbsen@gmail.com>
+pkgname=slock-git
+pkgver=v1.1.r1.g8d04863
+pkgrel=1
+pkgdesc="Suckless screen locker, patched against deadlocks"
+url="https://github.com/andres-erbsen/slock"
+arch=('i686' 'x86_64')
+license=('MIT')
+depends=(libx11)
+conflicts=('slock')
+replaces=('slock')
+source=("$pkgname"::'git://github.com/andres-erbsen/slock.git')
+md5sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$pkgname"
+  git describe --long --tags | sed -r 's/([^-]*-g)/r\1/;s/-/./g'
+}
+
+build() {
+  cd "$srcdir/$pkgname"
+  make PREFIX=/usr DESTDIR="$pkgdir"
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+  make PREFIX=/usr DESTDIR="$pkgdir" install || return 1
+  install -m644 -D LICENSE "$pkgdir/usr/share/licences/$pkgname/LICENSE"
+}
