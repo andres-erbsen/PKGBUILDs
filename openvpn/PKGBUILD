@@ -14,7 +14,7 @@ install=openvpn.install
 source=(http://swupdate.openvpn.net/community/releases/openvpn-${pkgver}.tar.gz
         http://swupdate.openvpn.net/community/releases/openvpn-${pkgver}.tar.gz.asc
         openvpn@.service
-		https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/tools/networking/openvpn/systemd-notify.patch)
+        systemd-notify.patch)
 md5sums=('5c66ea3143ac884a3075521bd74ede06'
          'SKIP'
          '1132fdf4bce82aafe3860e1146ed27ca'
