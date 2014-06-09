@@ -1,7 +1,7 @@
 # Maintainer: Andres Erbsen <andres@krutt.org>
 pkgname=publicfile
 pkgver=0.52
-pkgrel=4
+pkgrel=5
 pkgdesc="HTTP and FTP server for public files"
 arch=('i686' 'x86_64' 'armv6h')
 url="http://cr.yp.to/publicfile.html"
@@ -11,17 +11,20 @@ optdepends=('ucspi-tcp' 'ucspi-ssl' 'daemontools')
 source=("http://cr.yp.to/$pkgname/$pkgname-$pkgver.tar.gz"
         "http://djbware.csi.hu/patches/publicfile-$pkgver.errno.patch"
         "http://publicfile.org/redirect-slash-patch"
-        "http://www.superscript.com/patches/publicfile.sslserver")
+        "http://www.superscript.com/patches/publicfile.sslserver"
+        "http://www.ohse.de/uwe/patches/publicfile-0.52-filetype-diff")
 md5sums=('e493d69627b4fb2c7c764c0ff34330d7'
          'cb576aa2528b53e4a00fe1dd0d38db26'
          'c03ffd7a672ee5bc27bc5b2f4a2e4da3'
-         '1abfad5628f536f9dcfff4faf112cd69')
+         '1abfad5628f536f9dcfff4faf112cd69'
+         '6c4dc7f29f2b9961819f3226bd67840e')
 
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
 	patch -p1 < "../publicfile-$pkgver.errno.patch"
 	patch < ../publicfile.sslserver
   patch < ../redirect-slash-patch
+  patch < ../publicfile-0.52-filetype-diff
   echo "gcc ${CFLAGS}" > conf-cc
   echo "/usr" > conf-home
 }
