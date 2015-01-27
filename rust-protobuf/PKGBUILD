@@ -1,0 +1,33 @@
+# Maintainer: Andres Erbsen <andres@krutt.org>
+
+pkgname=rust-protobuf
+pkgver=r65.21260ed
+pkgrel=1
+pkgdesc="Rust support for Google protocol buffers"
+arch=('i686' 'x86_64')
+url="https://github.com/stepancheg/rust-protobuf"
+license=('BSD') # 2-clause
+depends=('rust')
+makedepends=('git')
+source=("$pkgname"::'git+https://github.com/stepancheg/rust-protobuf.git#branch=rust-0.10')
+md5sums=('SKIP')
+
+pkgver() {
+	cd "$srcdir/$pkgname"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd "$srcdir/$pkgname/src"
+	./rebuild.sh
+}
+
+package() {
+	cd "$srcdir/$pkgname"
+	install -Dm644 LICENSE.txt "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+	cd "src"
+	install -d "$pkgdir/usr/lib/"
+	install -m644 libprotobuf-*.rlib "$pkgdir/usr/lib/"
+	install -Dm755 protoc-gen-rust "$pkgdir/usr/bin/protoc-gen-rust"
+	install -Dm755 protobuf-bin-gen-rust "$pkgdir/usr/bin/protobuf-bin-gen-rust"
+}

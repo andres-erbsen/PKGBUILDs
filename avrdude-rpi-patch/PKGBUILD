@@ -1,0 +1,37 @@
+# Contributor: Corrado Primier <bardo@aur.archlinux.org>
+# Contributor: Brad Fanella <bradfanella@archlinux.us>
+# Maintainer: Andres Erbsen <andres@krutt.org>
+
+pkgname=avrdude
+pkgver=6.1
+pkgrel=1
+pkgdesc="Download/upload/manipulate the ROM and EEPROM contents of AVR microcontrollers"
+arch=('i686' 'x86_64' 'armv6h')
+url="http://www.nongnu.org/avrdude/"
+license=('GPL')
+depends=('readline' 'libftdi' 'libusb-compat' 'elfutils')
+source=(http://download.savannah.gnu.org/releases/avrdude/${pkgname}-${pkgver}.tar.gz{,.sig}
+		"linuxspi.patch::https://savannah.nongnu.org/patch/download.php?file_id=29517")
+md5sums=('9db8c25b935d34234b9b1ba16ad55fd5'
+         'SKIP'
+         'f7039b63b4b1340b22208b16c7340bef')
+
+prepare() {
+	cd "${srcdir}"/${pkgname}-${pkgver}
+	patch -Np2 -i ${srcdir}/linuxspi.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+  	./configure --mandir=/usr/share/man \
+		    --prefix=/usr \
+		    --sysconfdir=/etc
+  	make
+}
+
+package() {
+  	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make DESTDIR="${pkgdir}" install
+}
