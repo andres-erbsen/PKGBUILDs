@@ -1,0 +1,50 @@
+# Maintainer: Andres Erbsen <andres@krutt.org>
+# Contributor: Brad Pitcher <bradpitcher@gmail.com>
+pkgname=haskell-implicitcad-git
+pkgver=0.0.2.r147.ga2f92eb
+pkgrel=1
+pkgdesc="Math-inspired programmatic 2&3D CAD: CSG, bevels, and shells; gcode export.."
+url="http://www.implicitcad.org"
+license=('GPL')
+arch=('i686' 'x86_64')
+makedepends=()
+depends=('ghc' 'haskell-juicypixels' 'haskell-blaze-builder' 'haskell-blaze-markup' 'haskell-blaze-svg' 'haskell-bytestring>=0.9.1.10' 'haskell-containers>=0.4.0.0' 'haskell-deepseq>=1.1.0.2' 'haskell-directory>=1.1.0.0' 'haskell-filepath>=1.2.0.0' 'haskell-mtl>=2.0.1.0' 'haskell-optparse-applicative>=0.10' 'haskell-parallel>=3.1.0.1' 'haskell-parsec>=3.1.1' 'haskell-storable-endian' 'haskell-text>=0.11.0.5' 'haskell-unordered-containers' 'haskell-vector-space')
+options=('strip')
+source=("$pkgname::git+https://github.com/colah/ImplicitCAD.git"
+		"implicitcad-optparse-applicative.patch")
+install=${pkgname}.install
+sha256sums=('SKIP'
+			'69b8e71156c859b90dcd7a95cfb1abe3b087665dce9aed38f7a72f7bcfb767cc')
+
+prepare() {
+	cd "$srcdir/$pkgname"
+	git apply ../../implicitcad-optparse-applicative.patch
+}
+
+pkgver() {
+	cd "$srcdir/$pkgname"
+	( set -o pipefail
+	  git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+		printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+	)
+}
+
+build() {
+    cd "$srcdir/$pkgname"
+    runhaskell Setup configure -O --enable-library-profiling --enable-shared \
+       --prefix=/usr --docdir=/usr/share/doc/${pkgname} --libsubdir=\$compiler/site-local/\$pkgid
+	runhaskell Setup build --ghc-options=-XOverlappingInstances
+    runhaskell Setup haddock
+    runhaskell Setup register   --gen-script
+    runhaskell Setup unregister --gen-script
+    sed -i -r -e "s|ghc-pkg.*unregister[^ ]* |&'--force' |" unregister.sh
+}
+
+package() {
+    cd "$srcdir/$pkgname"
+    install -D -m744 register.sh   ${pkgdir}/usr/share/haskell/${pkgname}/register.sh
+    install    -m744 unregister.sh ${pkgdir}/usr/share/haskell/${pkgname}/unregister.sh
+    install -d -m755 ${pkgdir}/usr/share/doc/ghc/html/libraries
+    ln -s /usr/share/doc/${pkgname}/html ${pkgdir}/usr/share/doc/ghc/html/libraries/${pkgname}
+    runhaskell Setup copy --destdir=${pkgdir}
+}

@@ -1,0 +1,76 @@
+diff --git a/extopenscad.hs b/extopenscad.hs
+index 7ae05fe..8c8c3d6 100644
+--- a/extopenscad.hs
++++ b/extopenscad.hs
+@@ -23,7 +23,7 @@ import Data.AffineSpace
+ import Control.Applicative
+ -- The following is needed to ensure backwards/forwards compatibility
+ -- make sure we don't import (<>) in new versions.
+-import Options.Applicative (fullDesc, progDesc, header, auto, info, helper, help, str, argument, switch, value, long, short, option, metavar, nullOption, reader, execParser, Parser)
++import Options.Applicative (fullDesc, progDesc, header, auto, info, helper, help, str, argument, switch, value, long, short, option, metavar, strOption, execParser, Parser)
+ import System.FilePath
+ 
+ -- Backwards compatibility with old versions of Data.Monoid:
+@@ -58,41 +58,40 @@ formatExtensions =
+ 	, ("obj", OBJ)
+ 	]
+ 
+-readOutputFormat :: String -> Maybe OutputFormat
+-readOutputFormat ext = lookup (map toLower ext) formatExtensions
++readOutputFormat :: Monad m => String -> m (Maybe OutputFormat)
++readOutputFormat ext = case lookup (map toLower ext) formatExtensions of
++	Nothing -> fail "unknown extension"
++	Just x -> return (Just x)
+ 
+ guessOutputFormat :: FilePath -> OutputFormat
+ guessOutputFormat fileName =
+ 	maybe (error $ "Unrecognized output format: "<>ext) id
+-	$ readOutputFormat $ tail ext
++	$ lookup (map toLower $ tail ext) formatExtensions
+ 	where
+ 		(_,ext) = splitExtension fileName
+ 
+ extOpenScadOpts :: Parser ExtOpenScadOpts
+ extOpenScadOpts =
+ 	ExtOpenScadOpts
+-	<$> nullOption
++	<$> option auto
+ 		(  short 'o'
+ 		<> long "output"
+ 		<> value Nothing
+ 		<> metavar "FILE"
+-		<> reader (pure . str)
+ 		<> help "Output file name"
+ 		)
+-	<*> nullOption
++	<*> option (str >>= readOutputFormat)
+ 		(  short 'f'
+ 		<> long "format"
+ 		<> value Nothing
+ 		<> metavar "FORMAT"
+ 		<> help "Output format"
+-		<> reader (pure . readOutputFormat)
+ 		)
+-	<*> option
++	<*> option auto
+ 		(  short 'r'
+ 		<> long "resolution"
+ 		<> value Nothing
+ 		<> metavar "RES"
+-		<> reader (pure . auto)
+ 		<> help "Approximation quality"
+ 		)
+ 	<*> switch
+diff --git a/implicit.cabal b/implicit.cabal
+index 0b30bde..95e3f29 100644
+--- a/implicit.cabal
++++ b/implicit.cabal
+@@ -20,7 +20,7 @@ Library
+         base >= 3 && < 5,
+         filepath,
+         directory,
+-        optparse-applicative >= 0.9.0.0 && < 0.10.0,
++        optparse-applicative >= 0.10.0,
+         parsec,
+         unordered-containers,
+         parallel,

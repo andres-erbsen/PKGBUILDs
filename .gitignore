@@ -1,0 +1,10 @@
+*.tgz
+*.tar.gz
+*.tar.xz
+*.tar.gz.sig
+*.tar.xz.sig
+*/src/
+*/pkg/
+
+*.swp
+*.swo
