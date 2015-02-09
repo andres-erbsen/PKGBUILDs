@@ -1,5 +1,5 @@
 diff --git a/extopenscad.hs b/extopenscad.hs
-index 7ae05fe..8c8c3d6 100644
+index 7ae05fe..281669a 100644
 --- a/extopenscad.hs
 +++ b/extopenscad.hs
 @@ -23,7 +23,7 @@ import Data.AffineSpace
@@ -7,34 +7,29 @@ index 7ae05fe..8c8c3d6 100644
  -- The following is needed to ensure backwards/forwards compatibility
  -- make sure we don't import (<>) in new versions.
 -import Options.Applicative (fullDesc, progDesc, header, auto, info, helper, help, str, argument, switch, value, long, short, option, metavar, nullOption, reader, execParser, Parser)
-+import Options.Applicative (fullDesc, progDesc, header, auto, info, helper, help, str, argument, switch, value, long, short, option, metavar, strOption, execParser, Parser)
++import Options.Applicative (fullDesc, progDesc, header, auto, info, helper, help, str, argument, switch, value, long, short, option, metavar, execParser, Parser)
  import System.FilePath
  
  -- Backwards compatibility with old versions of Data.Monoid:
-@@ -58,41 +58,40 @@ formatExtensions =
+@@ -58,8 +58,10 @@ formatExtensions =
  	, ("obj", OBJ)
  	]
  
 -readOutputFormat :: String -> Maybe OutputFormat
 -readOutputFormat ext = lookup (map toLower ext) formatExtensions
-+readOutputFormat :: Monad m => String -> m (Maybe OutputFormat)
++readOutputFormat :: Monad m => String -> m (OutputFormat)
 +readOutputFormat ext = case lookup (map toLower ext) formatExtensions of
-+	Nothing -> fail "unknown extension"
-+	Just x -> return (Just x)
++	Nothing -> fail ("unknown extension: "++ext)
++	Just x -> return x
  
  guessOutputFormat :: FilePath -> OutputFormat
  guessOutputFormat fileName =
- 	maybe (error $ "Unrecognized output format: "<>ext) id
--	$ readOutputFormat $ tail ext
-+	$ lookup (map toLower $ tail ext) formatExtensions
- 	where
- 		(_,ext) = splitExtension fileName
- 
+@@ -71,28 +73,25 @@ guessOutputFormat fileName =
  extOpenScadOpts :: Parser ExtOpenScadOpts
  extOpenScadOpts =
  	ExtOpenScadOpts
 -	<$> nullOption
-+	<$> option auto
++	<$> option (pure <$> str)
  		(  short 'o'
  		<> long "output"
  		<> value Nothing
@@ -43,7 +38,7 @@ index 7ae05fe..8c8c3d6 100644
  		<> help "Output file name"
  		)
 -	<*> nullOption
-+	<*> option (str >>= readOutputFormat)
++	<*> option (pure <$> (readOutputFormat =<< str))
  		(  short 'f'
  		<> long "format"
  		<> value Nothing
@@ -52,7 +47,7 @@ index 7ae05fe..8c8c3d6 100644
 -		<> reader (pure . readOutputFormat)
  		)
 -	<*> option
-+	<*> option auto
++	<*> option (pure <$> auto)
  		(  short 'r'
  		<> long "resolution"
  		<> value Nothing
@@ -62,7 +57,7 @@ index 7ae05fe..8c8c3d6 100644
  		)
  	<*> switch
 diff --git a/implicit.cabal b/implicit.cabal
-index 0b30bde..95e3f29 100644
+index 0b30bde..17026f0 100644
 --- a/implicit.cabal
 +++ b/implicit.cabal
 @@ -20,7 +20,7 @@ Library

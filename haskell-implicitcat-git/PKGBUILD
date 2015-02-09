@@ -14,7 +14,7 @@ source=("$pkgname::git+https://github.com/colah/ImplicitCAD.git"
 		"implicitcad-optparse-applicative.patch")
 install=${pkgname}.install
 sha256sums=('SKIP'
-			'69b8e71156c859b90dcd7a95cfb1abe3b087665dce9aed38f7a72f7bcfb767cc')
+            '4880e6f4b504ead43f92287834e43bf2b5a5d25ae71f35d85a4aff29836c8ad3')
 
 prepare() {
 	cd "$srcdir/$pkgname"
