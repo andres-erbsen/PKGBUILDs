@@ -1,0 +1,39 @@
+# Maintainer: Andres Erbsen <andreser@mit.edu>
+
+_gitname='diffscuss'
+pkgname="python2-${_gitname}-git"
+_gitauthor='hut8labs'
+pkgver=r159.e0aacd8
+pkgrel=1
+pkgdesc="Code reviews. In plain text."
+url="https://github.com/${_gitauthor}/${_gitname}"
+license=('MIT')
+source=("git://github.com/${_gitauthor}/${_gitname}")
+sha512sums=('SKIP')
+arch=('any')
+makedepends=('git' 'python2-setuptools')
+depends=('git' 'python2' 'python2-pygithub' 'python2-requests')
+provides=("${_gitname}" "python2-${_gitname}")
+
+prepare() {
+  cd "${srcdir}/${_gitname}"
+  find . -name '*.py' | xargs sed -i 's:/usr/bin/env python:/usr/bin/env python2:g'
+  sed -i 's:DIFFSCUSS_PYTHON="python":DIFFSCUSS_PYTHON="python2":g' bin/diffscuss
+}
+
+pkgver() {
+  cd "${srcdir}/${_gitname}"
+  (
+    set -o pipefail
+    git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+      printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+package() {
+  cd "${srcdir}/${_gitname}"
+  python2 setup.py install --root="$pkgdir/" --optimize=1
+  install -D -m644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+# vim:set et sw=2 sts=2 tw=80:
