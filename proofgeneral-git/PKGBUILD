@@ -4,7 +4,7 @@
 # Contributor: Andres Erbsen <andreser@mit.edu>
 
 pkgname=proofgeneral-git
-pkgver=4.3pre.8632
+pkgver=4.3pre.8634
 pkgver() {
   cd "$srcdir/PG"
   echo "$(grep -oP '(?<=PRERELEASE_TAG=)[\.0-9]*(pre)?' Makefile.devel).$(git log --oneline | wc -l)"
@@ -17,7 +17,7 @@ url='http://proofgeneral.inf.ed.ac.uk/'
 depends=('emacs>=24.3')
 conflicts=('proofgeneral')
 install="${pkgname}.install"
-source=("git://github.com/ProofGeneral/PG")
+source=("git+https://github.com/ProofGeneral/PG")
 
 sha512sums=('SKIP')
 

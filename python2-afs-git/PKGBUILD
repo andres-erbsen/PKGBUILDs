@@ -14,7 +14,7 @@ conflicts=()
 replaces=()
 backup=()
 options=(!emptydirs)
-source=("$pkgname"::'git://github.com/mit-athena/python-afs.git')
+source=("$pkgname"::'git+https://github.com/mit-athena/python-afs.git')
 md5sums=('SKIP')
 
 pkgver() {

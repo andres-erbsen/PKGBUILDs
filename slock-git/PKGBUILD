@@ -9,7 +9,7 @@ license=('MIT')
 depends=(libx11)
 conflicts=('slock')
 replaces=('slock')
-source=("$pkgname"::'git://github.com/andres-erbsen/slock.git')
+source=("$pkgname"::'git+https://github.com/andres-erbsen/slock.git')
 md5sums=('SKIP')
 
 pkgver() {

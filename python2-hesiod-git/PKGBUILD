@@ -10,7 +10,7 @@ depends=('python2' 'hesiod')
 conflicts=('python2-pyhesiod')
 provides=('python2-pyhesiod')
 makedepends=('python2-setuptools' 'pyrex')
-source=("$pkgname"::'git://github.com/mit-athena/python-hesiod.git')
+source=("$pkgname"::'git+https://github.com/mit-athena/python-hesiod.git')
 md5sums=('SKIP')
 
 pkgver() {
